@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /d/Dev/Git/Spielergebnis && npm run build 2>&1)"
+    ]
+  }
+}
