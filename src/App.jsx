@@ -278,7 +278,7 @@ export default function App() {
         {/* Column headers */}
         <div className="column-headers">
           <span className="col-header-team">Heim</span>
-          <span className="col-header-num">#</span>
+          <span className="col-header-num">Trikonummer</span>
           <span className="col-header-team">Gast</span>
         </div>
 
