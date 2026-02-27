@@ -159,6 +159,7 @@ export default function App() {
   const [copyStatus, setCopyStatus] = useState('idle') // idle | copied
   const [resetStep, setResetStep] = useState(0)        // 0 = normal, 1 = confirm
   const resetTimerRef = useRef(null)
+  const [showHelp, setShowHelp] = useState(false)
 
   const totalHome = syncedHome.reduce((s, g) => s + g, 0)
   const totalGuest = syncedGuest.reduce((s, g) => s + g, 0)
@@ -217,17 +218,53 @@ export default function App() {
           <label htmlFor="playerCount" className="control-label">
             Anzahl Spieler
           </label>
-          <input
-            id="playerCount"
-            type="number"
-            min="1"
-            max="50"
-            className="control-input"
-            value={playerCountRaw}
-            onChange={handlePlayerCountChange}
-            onBlur={handlePlayerCountBlur}
-          />
+          <div className="control-row-right">
+            <input
+              id="playerCount"
+              type="number"
+              min="1"
+              max="50"
+              className="control-input"
+              value={playerCountRaw}
+              onChange={handlePlayerCountChange}
+              onBlur={handlePlayerCountBlur}
+            />
+            <button
+              className="help-btn"
+              onClick={() => setShowHelp(true)}
+              aria-label="Anleitung anzeigen"
+              title="Anleitung"
+            >
+              ?
+            </button>
+          </div>
         </div>
+
+        {/* Help modal */}
+        {showHelp && (
+          <div className="modal-overlay" onClick={() => setShowHelp(false)}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2 className="modal-title">Anleitung</h2>
+                <button className="modal-close" onClick={() => setShowHelp(false)} aria-label="Schließen">✕</button>
+              </div>
+              <div className="modal-body">
+                <p>Diese App hilft euch dabei, Sportergebnisse schnell und übersichtlich zu erfassen.</p>
+
+                <h3>Spieleranzahl</h3>
+                <p>Gebt zu Beginn die Anzahl der Spieler ein – gemeint ist die höchste Trikonummer im Spiel. Für jede Trikonummer wird eine Zeile angezeigt. Die Nummern beginnen bei 1 und sind fortlaufend.</p>
+
+                <h3>Tore erfassen</h3>
+                <p>Pro Trikonummer könnt ihr über die Plus/Minus-Tasten die Tore für die Heim- oder Gastmannschaft eintragen.</p>
+
+                <h3>Handball – Multiplikator</h3>
+                <p>Im unteren Bereich findet ihr die spezielle Regelung für den Jugendhandball. Tragt dort die maximale Anzahl der Torschützen ein. Dieser Wert kann kleiner sein als die Gesamtzahl der Spieler, da manche Trikonummern im Spiel nicht besetzt sind oder beide Mannschaften unterschiedlich viele Spieler haben. Der Multiplikator fließt in die Berechnung des Endergebnisses ein.</p>
+
+                <p className="modal-footer-text">Viel Spaß mit der App!</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Scoreboard */}
         <div className="scoreboard">
