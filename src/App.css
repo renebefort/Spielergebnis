@@ -54,6 +54,9 @@ html, body {
   position: sticky;
   top: 0;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .app-title {
@@ -156,51 +159,127 @@ html, body {
   line-height: 1;
 }
 
-/* ===== Column Headers ===== */
-.column-headers {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 0.5rem;
-  padding: 0.5rem 0.5rem 0.25rem;
-  font-size: 0.7rem;
+/* ===== Team Section ===== */
+.team-section {
+  margin-top: 1rem;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--clr-surface);
+}
+
+.team-section-title {
+  font-size: 0.85rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--clr-text-muted);
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--clr-border);
 }
 
-.col-header-team:first-child {
-  text-align: center;
+.team-section-title-home {
   color: var(--clr-home);
-  opacity: 0.8;
+  background: linear-gradient(135deg, var(--clr-surface) 0%, rgba(79, 195, 247, 0.1) 100%);
 }
 
-.col-header-num {
-  text-align: center;
-  min-width: 48px;
-}
-
-.col-header-team:last-child {
-  text-align: center;
+.team-section-title-guest {
   color: var(--clr-guest);
-  opacity: 0.8;
+  background: linear-gradient(135deg, var(--clr-surface) 0%, rgba(244, 143, 177, 0.1) 100%);
+}
+
+/* ===== Add Player Row ===== */
+.add-player-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-top: 1px solid var(--clr-border);
+}
+
+.add-player-input {
+  padding: 0.5rem 0.625rem;
+  background: var(--clr-surface-2);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  color: var(--clr-text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  -moz-appearance: textfield;
+  transition: border-color 0.2s;
+}
+
+.add-player-input::-webkit-outer-spin-button,
+.add-player-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.add-player-input:focus {
+  outline: none;
+  border-color: var(--clr-accent);
+}
+
+.add-player-input-error {
+  border-color: var(--clr-accent) !important;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.add-player-num {
+  width: 60px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.add-player-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.add-player-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: var(--clr-btn-plus);
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.12s, transform 0.08s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.add-player-btn:hover {
+  background-color: var(--clr-btn-plus-hover);
+}
+
+.add-player-btn:active {
+  transform: scale(0.92);
 }
 
 /* ===== Player List ===== */
-.player-list {
+.team-section .player-list {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding-bottom: 0.5rem;
+  padding: 0.375rem;
 }
 
 /* ===== Player Row ===== */
 .player-row {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 0.375rem;
+  display: flex;
   align-items: center;
-  padding: 0.25rem 0.25rem;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
   background: var(--clr-surface);
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
@@ -211,16 +290,38 @@ html, body {
   border-color: var(--clr-border);
 }
 
+/* ===== Player Info ===== */
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.player-num {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--clr-text-muted);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.player-name {
+  font-size: 0.85rem;
+  color: var(--clr-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ===== Goal Cell ===== */
 .goal-cell {
   display: flex;
   align-items: center;
   gap: 0.375rem;
   justify-content: center;
-}
-
-.goal-cell-guest {
-  justify-content: center;
+  flex-shrink: 0;
 }
 
 .goal-value {
@@ -230,18 +331,6 @@ html, body {
   text-align: center;
   font-variant-numeric: tabular-nums;
   color: var(--clr-text);
-}
-
-/* ===== Player Number ===== */
-.player-num {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--clr-text-muted);
-  text-align: center;
-  min-width: 44px;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  padding: 0 2px;
 }
 
 /* ===== Buttons ===== */
@@ -290,6 +379,31 @@ html, body {
   color: #555577;
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+/* ===== Help Button ===== */
+.help-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--clr-accent);
+  background: transparent;
+  color: var(--clr-accent);
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.help-btn:hover {
+  background-color: var(--clr-accent);
+  color: #fff;
 }
 
 /* ===== Handball Section ===== */
@@ -404,38 +518,6 @@ html, body {
   100% { transform: scale(1); }
 }
 
-/* ===== Control Row Right ===== */
-.control-row-right {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* ===== Help Button ===== */
-.help-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--clr-accent);
-  background: transparent;
-  color: var(--clr-accent);
-  font-size: 0.95rem;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background-color 0.15s, color 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.help-btn:hover {
-  background-color: var(--clr-accent);
-  color: #fff;
-}
-
 /* ===== Modal ===== */
 .modal-overlay {
   position: fixed;
@@ -528,6 +610,11 @@ html, body {
     font-size: 1.1rem;
   }
 
+  .add-player-btn {
+    width: 36px;
+    height: 36px;
+  }
+
   .goal-value {
     font-size: 1rem;
   }
@@ -537,12 +624,15 @@ html, body {
   }
 
   .player-num {
-    min-width: 38px;
-    font-size: 0.72rem;
+    font-size: 0.78rem;
   }
 
   .control-input {
     width: 64px;
+  }
+
+  .add-player-num {
+    width: 52px;
   }
 }
 
@@ -560,9 +650,5 @@ html, body {
   .goal-value {
     font-size: 1.25rem;
     min-width: 2.5ch;
-  }
-
-  .player-num {
-    min-width: 52px;
   }
 }
