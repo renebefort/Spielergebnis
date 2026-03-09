@@ -211,9 +211,15 @@ export default function App() {
     }
   }
 
-  const renderTeamSection = (team, title, players, numRaw, setNumRaw, name, setName, numError, handleAdd) => (
+  const renderTeamSection = (team, title, players, numRaw, setNumRaw, name, setName, numError, handleAdd) => {
+    const teamGoals = players.reduce((s, p) => s + p.goals, 0)
+    const teamScorers = players.filter((p) => p.goals > 0).length
+    return (
     <section className={`team-section team-section-${team}`}>
-      <h2 className={`team-section-title team-section-title-${team}`}>{title}</h2>
+      <h2 className={`team-section-title team-section-title-${team}`}>
+        <span>{title}</span>
+        <span className="team-section-stats">Tore: {teamGoals} | Torschützen: {teamScorers}</span>
+      </h2>
 
       <div className="player-list">
         {players.map((p) => (
@@ -265,7 +271,7 @@ export default function App() {
         <button type="submit" className="add-player-btn" aria-label={`Spieler zu ${title} hinzufügen`}>+</button>
       </form>
     </section>
-  )
+  )}
 
   return (
     <div className="app">
@@ -301,6 +307,9 @@ export default function App() {
 
                 <h3>Handball – Multiplikator</h3>
                 <p>Im unteren Bereich findet ihr die spezielle Regelung für den Jugendhandball. Tragt dort die maximale Anzahl der Torschützen ein. Der Multiplikator fließt in die Berechnung des Endergebnisses ein.</p>
+
+                <h3>Changelog</h3>
+                <p><strong>Version 1.0.0</strong> — Die Beta-Phase ist abgeschlossen. Die App ist nun in der ersten stabilen Version verfügbar.</p>
 
                 <p className="modal-footer-text">Viel Spaß mit der App!</p>
               </div>
