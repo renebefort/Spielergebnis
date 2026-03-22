@@ -82,6 +82,11 @@ export default function App() {
   const [guestName, setGuestName] = useState('')
   const [guestNumError, setGuestNumError] = useState(false)
 
+  // Inline-Edit state (Long-Press)
+  const [editingPlayer, setEditingPlayer] = useState(null) // { team, num }
+  const [editNameValue, setEditNameValue] = useState('')
+  const longPressTimerRef = useRef(null)
+
   // Persist state changes
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.homePlayers, JSON.stringify(homePlayers))
@@ -134,6 +139,40 @@ export default function App() {
         p.num === num ? { ...p, goals: Math.max(0, p.goals + delta) } : p
       )
     )
+  }, [])
+
+  const updatePlayerName = useCallback((team, num, newName) => {
+    const setter = team === 'home' ? setHomePlayers : setGuestPlayers
+    setter((prev) =>
+      prev.map((p) =>
+        p.num === num ? { ...p, name: newName.trim() } : p
+      )
+    )
+  }, [])
+
+  const startLongPress = useCallback((team, num, currentName) => {
+    longPressTimerRef.current = setTimeout(() => {
+      setEditingPlayer({ team, num })
+      setEditNameValue(currentName || '')
+    }, 500)
+  }, [])
+
+  const cancelLongPress = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current)
+      longPressTimerRef.current = null
+    }
+  }, [])
+
+  const saveEdit = useCallback(() => {
+    if (editingPlayer) {
+      updatePlayerName(editingPlayer.team, editingPlayer.num, editNameValue)
+      setEditingPlayer(null)
+    }
+  }, [editingPlayer, editNameValue, updatePlayerName])
+
+  const cancelEdit = useCallback(() => {
+    setEditingPlayer(null)
   }, [])
 
   const handleAddHome = (e) => {
@@ -191,10 +230,42 @@ export default function App() {
       homeScorersCount, guestScorersCount,
       maxScorers
     )
-    navigator.clipboard.writeText(md).then(() => {
+
+    const onSuccess = () => {
       setCopyStatus('copied')
       setTimeout(() => setCopyStatus('idle'), 2000)
-    })
+    }
+
+    const onError = () => {
+      setCopyStatus('error')
+      setTimeout(() => setCopyStatus('idle'), 2000)
+    }
+
+    // Fallback für Android/Chrome: Textarea + execCommand
+    const fallbackCopy = (text) => {
+      try {
+        const ta = document.createElement('textarea')
+        ta.value = text
+        ta.style.position = 'fixed'
+        ta.style.left = '-9999px'
+        ta.style.top = '-9999px'
+        document.body.appendChild(ta)
+        ta.focus()
+        ta.select()
+        const ok = document.execCommand('copy')
+        document.body.removeChild(ta)
+        if (ok) onSuccess()
+        else onError()
+      } catch {
+        onError()
+      }
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(md).then(onSuccess).catch(() => fallbackCopy(md))
+    } else {
+      fallbackCopy(md)
+    }
   }, [homePlayers, guestPlayers, totalHome, totalGuest, homeMulti, guestMulti, homeScorersCount, guestScorersCount, maxScorers])
 
   const handleResetClick = () => {
@@ -214,19 +285,43 @@ export default function App() {
   const renderTeamSection = (team, title, players, numRaw, setNumRaw, name, setName, numError, handleAdd) => {
     const teamGoals = players.reduce((s, p) => s + p.goals, 0)
     const teamScorers = players.filter((p) => p.goals > 0).length
+    const isEditing = (num) => editingPlayer && editingPlayer.team === team && editingPlayer.num === num
     return (
     <section className={`team-section team-section-${team}`}>
       <h2 className={`team-section-title team-section-title-${team}`}>
         <span>{title}</span>
-        <span className="team-section-stats">Tore: {teamGoals} | Torschützen: {teamScorers}</span>
+        <span className="team-section-stats">Spieler: {players.length} | Tore: {teamGoals} | Torschützen: {teamScorers}</span>
       </h2>
 
       <div className="player-list">
         {players.map((p) => (
-          <div key={p.num} className="player-row">
+          <div
+            key={p.num}
+            className="player-row"
+            onPointerDown={() => startLongPress(team, p.num, p.name)}
+            onPointerUp={cancelLongPress}
+            onPointerLeave={cancelLongPress}
+            onContextMenu={(e) => e.preventDefault()}
+          >
             <div className="player-info">
-              <span className="player-num">#{String(p.num).padStart(2, '0')}</span>
-              {p.name && <span className="player-name">{p.name}</span>}
+              <span className={`player-num player-num-${team}`}>#{String(p.num).padStart(2, '0')}</span>
+              {isEditing(p.num) ? (
+                <input
+                  type="text"
+                  className="edit-name-input"
+                  value={editNameValue}
+                  onChange={(e) => setEditNameValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') saveEdit()
+                    if (e.key === 'Escape') cancelEdit()
+                  }}
+                  onBlur={saveEdit}
+                  autoFocus
+                  placeholder="Name"
+                />
+              ) : (
+                p.name && <span className="player-name">{p.name}</span>
+              )}
             </div>
             <div className="goal-cell">
               <button
@@ -309,6 +404,13 @@ export default function App() {
                 <p>Im unteren Bereich findet ihr die spezielle Regelung für den Jugendhandball. Tragt dort die maximale Anzahl der Torschützen ein. Der Multiplikator fließt in die Berechnung des Endergebnisses ein.</p>
 
                 <h3>Changelog</h3>
+                <p><strong>Version 1.1.0</strong></p>
+                <ul style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <li>Kopier-Button funktioniert jetzt auch auf Android/Chrome</li>
+                  <li>Kopfzeile zeigt nun Spieler, Tore und Torschützen</li>
+                  <li>Trikonummer wird in der Teamfarbe angezeigt</li>
+                  <li>Spielername nachträglich änderbar (langer Druck auf Spielerzeile)</li>
+                </ul>
                 <p><strong>Version 1.0.0</strong> — Die Beta-Phase ist abgeschlossen. Die App ist nun in der ersten stabilen Version verfügbar.</p>
 
                 <p className="modal-footer-text">Viel Spaß mit der App!</p>
@@ -367,10 +469,10 @@ export default function App() {
         {/* Action buttons */}
         <div className="action-bar">
           <button
-            className="action-btn action-btn-copy"
+            className={`action-btn action-btn-copy ${copyStatus === 'error' ? 'action-btn-copy-error' : ''}`}
             onClick={handleCopy}
           >
-            {copyStatus === 'copied' ? '✓ Kopiert!' : 'Ergebnis kopieren'}
+            {copyStatus === 'copied' ? '✓ Kopiert!' : copyStatus === 'error' ? '✗ Fehler!' : 'Ergebnis kopieren'}
           </button>
           <button
             className={`action-btn action-btn-reset ${resetStep === 1 ? 'action-btn-reset-confirm' : ''}`}

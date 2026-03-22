@@ -288,22 +288,6 @@ html, body {
 }
 
 /* ===== Player Row ===== */
-.player-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.25rem 0.5rem;
-  background: var(--clr-surface);
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  transition: border-color 0.15s;
-}
-
-.player-row:hover {
-  border-color: var(--clr-border);
-}
-
-/* ===== Player Info ===== */
 .player-info {
   display: flex;
   align-items: center;
@@ -314,10 +298,17 @@ html, body {
 .player-num {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--clr-text-muted);
   letter-spacing: 0.03em;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.player-num-home {
+  color: var(--clr-home);
+}
+
+.player-num-guest {
+  color: var(--clr-guest);
 }
 
 .player-name {
@@ -326,6 +317,38 @@ html, body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ===== Inline Edit (Long-Press) ===== */
+.edit-name-input {
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: var(--clr-text);
+  background: var(--clr-surface-2);
+  border: 1px solid var(--clr-accent);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.4rem;
+  min-width: 0;
+  flex: 1;
+  outline: none;
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
+  background: var(--clr-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: border-color 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.player-row:hover {
+  border-color: var(--clr-border);
 }
 
 /* ===== Goal Cell ===== */
@@ -505,6 +528,10 @@ html, body {
 
 .action-btn-copy:hover {
   background-color: #1976d2;
+}
+
+.action-btn-copy-error {
+  background-color: #b71c1c;
 }
 
 .action-btn-reset {
